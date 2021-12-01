@@ -2,8 +2,8 @@ import React, {useEffect, useRef} from 'react';
 
 function Game(props)
 {
-    const width = 1800;
-    const height = 850;
+    const width = 1000;
+    const height = 600;
     const canvas = useRef();
     const tileWidth = 50;
     const speedStep = 1;
