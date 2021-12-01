@@ -3,20 +3,18 @@ import React, {useEffect, useRef} from 'react';
 function Game(props)
 {
     const width = 1800;
-    const height = 650;
+    const height = 850;
     const canvas = useRef();
-    const tilewidth = 50;
-    const stepspeed = 5;
+    const tileWidth = 50;
+    const speedStep = 1;
     const state = {
-        gravity: 0.8,
-        ball: {
+        square: {
             x : 500,
             y: 300,
-            velocityX : 0,
-            velocityY : 0,
+            accelX : 0,
+            accelY : 0,
             deltaX : 0,
             deltaY : 0,
-            radius:20,
             towards : {
                 x : 500,
                 y : 300,
@@ -25,18 +23,19 @@ function Game(props)
     }
 
     const draw = (context) => {
+        context.beginPath();
         context.fillStyle= "white";
         context.fillRect(0, 0, width, height);
         context.lineWidth = 2;
 
-        for (let i = 0; i<=height; i+=tilewidth)
+        for (let i = 0; i<=height; i+=tileWidth)
         {
             context.moveTo(0, i);
             context.lineTo(width, i)
         }
         context.stroke();
 
-        for (let i = 0; i<=width; i+=tilewidth)
+        for (let i = 0; i<=width; i+=tileWidth)
         {
             context.moveTo(i, 0);
             context.lineTo(i, height)
@@ -44,35 +43,35 @@ function Game(props)
         context.stroke();
         
         context.fillStyle= "red";
-        context.fillRect(state.ball.x-tilewidth, state.ball.y-tilewidth, tilewidth, tilewidth);
+        context.fillRect(state.square.x-tileWidth, state.square.y-tileWidth, tileWidth, tileWidth);
     }
 
 
     const move = (event) =>
     {
-        if (state.ball.x === state.ball.towards.x && state.ball.y === state.ball.towards.y)
+        if (state.square.x === state.square.towards.x && state.square.y === state.square.towards.y)
         {
             switch (event.keyCode)
             {
                 case 40://up
-                    if (state.ball.towards.y < height-tilewidth)
-                        state.ball.towards.y += tilewidth;
-                        state.ball.velocityY = tilewidth/2;
+                    if (state.square.towards.y < height-tileWidth)
+                        state.square.towards.y += tileWidth;
+                        state.square.accelY = tileWidth/2;
                     break;
                 case 38://down
-                    if (state.ball.towards.y > tilewidth)
-                        state.ball.towards.y -= tilewidth;
-                        state.ball.velocityY = tilewidth/2;
+                    if (state.square.towards.y > tileWidth)
+                        state.square.towards.y -= tileWidth;
+                        state.square.accelY = tileWidth/2;
                     break;
                 case 39://left
-                    if (state.ball.towards.x < width-tilewidth)
-                        state.ball.towards.x += tilewidth;
-                        state.ball.velocityX = tilewidth/2;
+                    if (state.square.towards.x < width-tileWidth)
+                        state.square.towards.x += tileWidth;
+                        state.square.accelX = tileWidth/2;
                     break;
                 case 37://right
-                    if (state.ball.towards.x > tilewidth)
-                        state.ball.towards.x -= tilewidth;
-                        state.ball.velocityX = tilewidth/2;
+                    if (state.square.towards.x > tileWidth)
+                        state.square.towards.x -= tileWidth;
+                        state.square.accelX = tileWidth/2;
                     break;
                 default:
                     break;
@@ -80,103 +79,109 @@ function Game(props)
         }
     }
 
-    const updateBallVelocity = (step=1) => 
+    const updatesquareaccel = (step=1) => 
     {
-        if (Math.abs(state.ball.x  - state.ball.towards.x) < tilewidth/2)
+        if (state.square.x !== state.square.towards.x)
         {
-            state.ball.velocityX = 0;
-        }
-        if (state.ball.velocityX > state.ball.deltaX++)
-        {
-            state.ball.deltaX += step;
-        }
-        else
-        {
-            state.ball.deltaX -= step;
-            if (state.ball.deltaX < 0)
-                state.ball.deltaX = 0;
-        }
-
-        if (state.ball.x < state.ball.towards.x)
-        {
-            if (state.ball.x + state.ball.deltaX < state.ball.towards.x && state.ball.deltaX > 0)
+            let stepX = step;
+            if (Math.abs(state.square.x  - state.square.towards.x) < tileWidth/2)
             {
-                state.ball.x += state.ball.deltaX;
+                state.square.accelX = 0;
+            }
+            if (state.square.accelX > state.square.deltaX)
+            {
+                state.square.deltaX += stepX;
             }
             else
             {
-                state.ball.x = state.ball.towards.x;
+                state.square.deltaX -= stepX;
+                if (state.square.deltaX < 0)
+                    state.square.deltaX = 0;
             }
-        }
-        else if (state.ball.x > state.ball.towards.x)
-        {
+
+            if (state.square.x < state.square.towards.x)
+            {
+                if (state.square.x + state.square.deltaX < state.square.towards.x && state.square.deltaX > 0)
+                {
+                    state.square.x += state.square.deltaX;
+                }
+                else
+                {
+                    state.square.x = state.square.towards.x;
+                }
+            }
+            else if (state.square.x > state.square.towards.x)
+            {
+                
+                if (state.square.x - state.square.deltaX >= state.square.towards.x && state.square.deltaX > 0)
+                {
+                    state.square.x -= state.square.deltaX;
+                }
+                else
+                {
+                    state.square.x = state.square.towards.x;
+                }
+            }
             
-            if (state.ball.x - state.ball.deltaX >= state.ball.towards.x && state.ball.deltaX > 0)
+            if (state.square.x === state.square.towards.x)
             {
-                state.ball.x -= state.ball.deltaX;
+                state.square.accelX = 0;
+                state.square.deltaX = 0;
+            }
+        }
+        if(state.square.y !== state.square.towards.y)
+        {
+            let stepY = step;
+            if (Math.abs(state.square.y - state.square.towards.y) < tileWidth/2)
+            {
+                state.square.accelY = 0;
+            }
+            if (state.square.accelY > state.square.deltaY)
+            {
+                state.square.deltaY += stepY;
             }
             else
             {
-                state.ball.x = state.ball.towards.x;
+                state.square.deltaY -= stepY;
+                if (state.square.deltaY < 0)
+                    state.square.deltaY = 0;
             }
-        }
-        
-        if (state.ball.x === state.ball.towards.x)
-        {
-            state.ball.velocityX = 0;
-            state.ball.deltaX = 0;
-        }
 
-        
-        if (Math.abs(state.ball.y  - state.ball.towards.y) < tilewidth/2)
-        {
-            state.ball.velocityY = 0;
-        }
-        if (state.ball.velocityY > state.ball.deltaY++)
-        {
-            state.ball.deltaY += step;
-        }
-        else
-        {
-            state.ball.deltaY -= step;
-            if (state.ball.deltaY < 0)
-                state.ball.deltaY = 0;
-        }
-
-        if (state.ball.y < state.ball.towards.y)
-        {
-            if (state.ball.y + state.ball.deltaY < state.ball.towards.y && state.ball.deltaY > 0)
+            if (state.square.y < state.square.towards.y)
             {
-                state.ball.y += state.ball.deltaY;
+                if (state.square.y + state.square.deltaY < state.square.towards.y && state.square.deltaY > 0)
+                {
+                    state.square.y += state.square.deltaY;
+                }
+                else
+                {
+                    state.square.y = state.square.towards.y;
+                }
             }
-            else
+            else if (state.square.y > state.square.towards.y)
             {
-                state.ball.y = state.ball.towards.y;
+                if (state.square.y - state.square.deltaY > state.square.towards.y && state.square.deltaY > 0)
+                {
+                    state.square.y -= state.square.deltaY;
+                }
+                else
+                {
+                    state.square.y = state.square.towards.y;
+                }
             }
-        }
-        else if (state.ball.y > state.ball.towards.y)
-        {
-            if (state.ball.y - state.ball.deltaY > state.ball.towards.y && state.ball.deltaY > 0)
+            
+            if (state.square.y === state.square.towards.y)
             {
-                state.ball.y -= state.ball.deltaY;
+                state.square.accelY = 0;
+                state.square.deltaY = 0;
             }
-            else
-            {
-                state.ball.y = state.ball.towards.y;
-            }
-        }
-        
-        if (state.ball.y === state.ball.towards.y)
-        {
-            state.ball.velocityY = 0;
-            state.ball.deltaY = 0;
         }
         
     }
 
     const update = () => 
     {
-        updateBallVelocity(stepspeed);
+        updatesquareaccel(speedStep);
     }
 
     useEffect(() =>
