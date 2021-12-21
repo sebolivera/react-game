@@ -1,5 +1,6 @@
 import React, { createRef, Component } from 'react';
 import update from 'react-addons-update'; // ES6
+import {sigmoid} from './Utils.js';
 
 class Game extends Component
 {
@@ -7,7 +8,7 @@ class Game extends Component
     height = 600;
     canvas = createRef();
     tileWidth = 50;
-    speedStep = 1;
+    speedStep = 0.01;
     state = {
         square: {
             x: 500,
@@ -23,29 +24,7 @@ class Game extends Component
         }
     }
 
-    constructor(props)
-    {
-        super(props);
-        this.width = 1000;
-        this.height = 600;
-        this.canvas = createRef();
-        this.tileWidth = 50;
-        this.speedStep = 1;
-        this.state = {
-            square: {
-                x: 500,
-                y: 300,
-                accelX: 0,
-                accelY: 0,
-                deltaX: 0,
-                deltaY: 0,
-                towards: {
-                    x: 500,
-                    y: 300,
-                }
-            }
-        }
-    }
+
     draw = (context) =>
     {
         context.beginPath();
@@ -86,38 +65,38 @@ class Game extends Component
                     if (this.state.square.towards.y < this.height - this.tileWidth)
                     {
                         sty += this.tileWidth;
-                        say = this.tileWidth/2;
+                        say = this.tileWidth / 2;
                     }
                     break;
                 case 38://down
                     if (this.state.square.towards.y > this.tileWidth)
                     {
                         sty -= this.tileWidth;
-                        say = this.tileWidth/2;
+                        say = this.tileWidth / 2;
                     }
                     break;
                 case 39://left
                     if (this.state.square.towards.x < this.width - this.tileWidth)
                     {
                         stx += this.tileWidth;
-                        sax = this.tileWidth/2;
+                        sax = this.tileWidth / 2;
                     }
                     break;
                 case 37://right
                     if (this.state.square.towards.x > this.tileWidth)
                     {
                         stx -= this.tileWidth;
-                        sax = this.tileWidth/2;
+                        sax = this.tileWidth / 2;
                     }
                     break;
                 default:
                     break;
             }
-            this.setState({ square: update(this.state.square, {towards: {x: {$set: stx}}})});// isn't there a shorter way to do this ???
-            this.setState({ square: update(this.state.square, {towards: {y: {$set: sty}}})});
-            this.setState({ square: update(this.state.square, {accelX: {$set: sax}})});
-            this.setState({ square: update(this.state.square, {accelY: {$set: say}})});
-            
+            this.setState({ square: update(this.state.square, { towards: { x: { $set: stx } } }) });// isn't there a shorter way to do this ???
+            this.setState({ square: update(this.state.square, { towards: { y: { $set: sty } } }) });
+            this.setState({ square: update(this.state.square, { accelX: { $set: sax } }) });
+            this.setState({ square: update(this.state.square, { accelY: { $set: say } }) });
+
         }
     }
 
@@ -138,15 +117,17 @@ class Game extends Component
             {
                 sax = 0;
             }
-            this.setState({ square: update(this.state.square, {accelX: {$set: sax}})});
+            this.setState({ square: update(this.state.square, { accelX: { $set: sax } }) });
+            sax = this.state.square.accelX;
             if (sax > sdx)
             {
                 sdx += stepX;
             }
             else
-            {  
+            {
                 sdx -= stepX;
-                if (sdx < 0){
+                if (sdx < 0)
+                {
                     sdx = 0;
                 }
             }
@@ -174,14 +155,15 @@ class Game extends Component
                 }
             }
 
-            this.setState({ square: update(this.state.square, {x: {$set: ssx}})});
+            this.setState({ square: update(this.state.square, { x: { $set: ssx } }) });
+            ssx = this.state.square.x;
             if (ssx === stx)
             {
                 sax = 0;
                 sdx = 0;
             }
-            this.setState({ square: update(this.state.square, {accelX: {$set: sax}})});
-            this.setState({ square: update(this.state.square, {deltaX: {$set: sdx}})});
+            this.setState({ square: update(this.state.square, { accelX: { $set: sax } }) });
+            this.setState({ square: update(this.state.square, { deltaX: { $set: sdx } }) });
         }
 
         // Y axis
@@ -192,15 +174,17 @@ class Game extends Component
             {
                 say = 0;
             }
-            this.setState({ square: update(this.state.square, {accelY: {$set: say}})});
+            this.setState({ square: update(this.state.square, { accelY: { $set: say } }) });
+            say = this.state.square.accelY;
             if (say > sdy)
             {
                 sdy += stepY;
             }
             else
-            {  
+            {
                 sdy -= stepY;
-                if (sdy < 0){
+                if (sdy < 0)
+                {
                     sdy = 0;
                 }
             }
@@ -228,14 +212,15 @@ class Game extends Component
                 }
             }
 
-            this.setState({ square: update(this.state.square, {y: {$set: ssy}})});
+            this.setState({ square: update(this.state.square, { y: { $set: ssy } }) });
+            ssy = this.state.square.y;
             if (ssy === sty)
             {
                 say = 0;
                 sdy = 0;
             }
-            this.setState({ square: update(this.state.square, {accelY:{$set: say}})});
-            this.setState({ square: update(this.state.square, {deltaY:{$set: sdy}})});
+            this.setState({ square: update(this.state.square, { accelY: { $set: say } }) });
+            this.setState({ square: update(this.state.square, { deltaY: { $set: sdy } }) });
         }
 
     }
