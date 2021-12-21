@@ -74,8 +74,6 @@ class Game extends Component
 
     move = (event) =>
     {
-        console.log('keypress:', event.keyCode);
-        console.log('state:', this.state);
         let say = this.state.square.accelY;
         let sax = this.state.square.accelX;
         let sty = this.state.square.towards.y;
@@ -115,9 +113,7 @@ class Game extends Component
                 default:
                     break;
             }
-            console.log('stx:',stx);
             this.setState({ square: update(this.state.square, {towards: {x: {$set: stx}}})});// isn't there a shorter way to do this ???
-            console.log('what:', this.state);
             this.setState({ square: update(this.state.square, {towards: {y: {$set: sty}}})});
             this.setState({ square: update(this.state.square, {accelX: {$set: sax}})});
             this.setState({ square: update(this.state.square, {accelY: {$set: say}})});
@@ -239,7 +235,6 @@ class Game extends Component
                 sdy = 0;
             }
             this.setState({ square: update(this.state.square, {accelY:{$set: say}})});
-            console.log('set sdy as', sdy)
             this.setState({ square: update(this.state.square, {deltaY:{$set: sdy}})});
         }
 
