@@ -8,7 +8,7 @@ class Game extends Component
     height = 600;
     canvas = createRef();
     tileWidth = 50;
-    speedStep = 0.01;
+    speedStep = 1;
     state = {
         square: {
             x: 500,
@@ -62,7 +62,7 @@ class Game extends Component
             switch (event.keyCode)
             {
                 case 40://up
-                    if (this.state.square.towards.y < this.height - this.tileWidth)
+                    if (this.state.square.towards.y <= this.height - this.tileWidth)
                     {
                         sty += this.tileWidth;
                         say = this.tileWidth / 2;
@@ -76,7 +76,7 @@ class Game extends Component
                     }
                     break;
                 case 39://left
-                    if (this.state.square.towards.x < this.width - this.tileWidth)
+                    if (this.state.square.towards.x <= this.width - this.tileWidth)
                     {
                         stx += this.tileWidth;
                         sax = this.tileWidth / 2;
@@ -100,7 +100,7 @@ class Game extends Component
         }
     }
 
-    updatesquareaccel = (step = 1) =>
+    updateAccel = (step = 1) =>
     {//I am so fucking sorry for this
         let ssx = this.state.square.x;
         let sdx = this.state.square.deltaX;
@@ -126,7 +126,7 @@ class Game extends Component
             else
             {
                 sdx -= stepX;
-                if (sdx < 0)
+                if (sdx < 0)// security in case the step makes the deltaX go into negative numbers (which it shouldn't. Ever) 
                 {
                     sdx = 0;
                 }
@@ -227,15 +227,14 @@ class Game extends Component
 
     update = () =>
     {
-        this.updatesquareaccel(this.speedStep);
+        this.updateAccel(this.speedStep);
     }
 
     componentDidMount()
     {
         document.addEventListener("keydown", this.move, true);
         const context = this.canvas.current.getContext("2d");
-        // this.update();
-        // this.draw(context);
+        
         setInterval(() =>
         {
             this.update();
